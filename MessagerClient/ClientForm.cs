@@ -18,7 +18,18 @@ namespace MessagerClient
         public Client()
         {
             InitializeComponent();
-            Name = "%name%";
+            this.Enabled = false;
+            Welcome Welcome = new Welcome();
+            Welcome.Activate();
+            Welcome.Show();
+            Welcome.Refresh();
+            while (Welcome.Username == "")
+            {
+                Application.DoEvents();
+            }
+            Name = Welcome.Username;
+            Welcome.Close();
+            this.Enabled = true;
         }
 
         void History_TextChanged(object sender, EventArgs e)
