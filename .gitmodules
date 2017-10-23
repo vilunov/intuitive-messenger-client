@@ -1,0 +1,3 @@
+[submodule "compressors"]
+	path = compressors
+	url = https://github.com/vilunov/intuitive-messenger-compressors.git
