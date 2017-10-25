@@ -20,10 +20,10 @@ namespace MessagerClient
             }
         }
     
-        [DllImport("libcompressors", EntryPoint="basic", ExactSpelling = true)]
+        [DllImport("compressors", EntryPoint="basic", ExactSpelling = true)]
         private static extern Arr BasicRaw(IntPtr arr, UIntPtr len);
         
-        [DllImport("libcompressors", EntryPoint="drop", ExactSpelling = true)]
+        [DllImport("compressors", EntryPoint="drop", ExactSpelling = true)]
         private static extern void Free(Arr arr);
     
         [StructLayout(LayoutKind.Sequential)]

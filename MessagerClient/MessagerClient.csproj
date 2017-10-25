@@ -91,8 +91,12 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\compressors\target\release\libcompressors.so">
+    <Content Include="..\compressors\target\release\libcompressors.so" Condition="Exists('..\compressors\target\release\libcompressors.so')">
       <Link>libcompressors.so</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\compressors\target\release\compressors.dll" Condition="Exists('..\compressors\target\release\compressors.dll')">
+      <Link>compressors.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
