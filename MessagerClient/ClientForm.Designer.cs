@@ -33,6 +33,7 @@ namespace MessagerClient
             this.Send = new System.Windows.Forms.Button();
             this.History = new System.Windows.Forms.RichTextBox();
             this.Message = new System.Windows.Forms.RichTextBox();
+            this.FilesList = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // Send
@@ -41,7 +42,7 @@ namespace MessagerClient
             this.Send.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.Send.Font = new System.Drawing.Font("Franklin Gothic Medium", 16F, System.Drawing.FontStyle.Bold);
             this.Send.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.Send.Location = new System.Drawing.Point(849, 338);
+            this.Send.Location = new System.Drawing.Point(689, 338);
             this.Send.Name = "Send";
             this.Send.Size = new System.Drawing.Size(155, 93);
             this.Send.TabIndex = 0;
@@ -52,13 +53,12 @@ namespace MessagerClient
             // History
             // 
             this.History.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.History.Location = new System.Drawing.Point(13, 12);
+            this.History.Location = new System.Drawing.Point(12, 12);
             this.History.Name = "History";
             this.History.ReadOnly = true;
             this.History.Size = new System.Drawing.Size(991, 308);
             this.History.TabIndex = 2;
             this.History.Text = "";
-            this.History.TextChanged += new System.EventHandler(this.History_TextChanged);
             // 
             // Message
             // 
@@ -67,12 +67,26 @@ namespace MessagerClient
             this.Message.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
             this.Message.Location = new System.Drawing.Point(13, 338);
             this.Message.Name = "Message";
-            this.Message.Size = new System.Drawing.Size(818, 93);
+            this.Message.Size = new System.Drawing.Size(669, 93);
             this.Message.TabIndex = 3;
             this.Message.Tag = "";
             this.Message.Text = "";
-            this.Message.DragEnter += new DragEventHandler(FilesListBox_DragEnter);
-            this.Message.DragDrop += new DragEventHandler(FilesListBox_DragDrop);
+            this.Message.DragDrop += new System.Windows.Forms.DragEventHandler(this.FilesListBox_DragDrop);
+            this.Message.DragEnter += new System.Windows.Forms.DragEventHandler(this.FilesListBox_DragEnter);
+            // 
+            // FilesList
+            // 
+            this.FilesList.BackColor = System.Drawing.SystemColors.Highlight;
+            this.FilesList.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.FilesList.Font = new System.Drawing.Font("Franklin Gothic Medium", 16F, System.Drawing.FontStyle.Bold);
+            this.FilesList.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.FilesList.Location = new System.Drawing.Point(850, 338);
+            this.FilesList.Name = "FilesList";
+            this.FilesList.Size = new System.Drawing.Size(155, 93);
+            this.FilesList.TabIndex = 4;
+            this.FilesList.Text = "FILES";
+            this.FilesList.UseVisualStyleBackColor = false;
+            this.FilesList.Click += new System.EventHandler(this.FilesList_Click);
             // 
             // Client
             // 
@@ -82,10 +96,12 @@ namespace MessagerClient
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(1017, 453);
+            this.Controls.Add(this.FilesList);
             this.Controls.Add(this.Message);
             this.Controls.Add(this.History);
             this.Controls.Add(this.Send);
             this.Name = "Client";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Client";
             this.ResumeLayout(false);
 
@@ -96,6 +112,7 @@ namespace MessagerClient
         private System.Windows.Forms.Button Send;
         private System.Windows.Forms.RichTextBox History;
         private System.Windows.Forms.RichTextBox Message;
+        private Button FilesList;
     }
 }
 
