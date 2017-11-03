@@ -104,7 +104,6 @@ namespace MessagerClient
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Client";
             this.ResumeLayout(false);
-
         }
 
         #endregion

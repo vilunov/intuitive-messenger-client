@@ -41,7 +41,6 @@
             this.Files.ItemHeight = 20;
             this.Files.Location = new System.Drawing.Point(-4, -1);
             this.Files.Name = "Files";
-            this.Files.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
             this.Files.Size = new System.Drawing.Size(262, 284);
             this.Files.TabIndex = 0;
             // 
@@ -85,7 +84,7 @@
 
         #endregion
 
-        private System.Windows.Forms.ListBox Files;
+        public System.Windows.Forms.ListBox Files;
         private System.Windows.Forms.Button Download;
         private System.Windows.Forms.Button Exit;
     }

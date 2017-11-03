@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace MessagerClient
 {
     public partial class List : Form
     {
-        public String[] ListOfFiles;
+        //HashMap, you can take path offile by its name
+        public Dictionary<String, String> ListOfFiles = new Dictionary<String, String>();
+        public bool IsDownload;
 
         public List()
         {
@@ -21,7 +17,9 @@ namespace MessagerClient
 
         public void AddFileToList(String File)
         {
-            Files.Items.Add(File);
+            if (!ListOfFiles.ContainsKey(System.IO.Path.GetFileName(File)))
+                ListOfFiles.Add(System.IO.Path.GetFileName(File), File);
+            Files.Items.Add(System.IO.Path.GetFileName(File));
         }
 
         private void Exit_Click(object sender, EventArgs e)
@@ -32,7 +30,25 @@ namespace MessagerClient
 
         private void Download_Click(object sender, EventArgs e)
         {
-            //код для скачивания файлов с сервера
+            String Selected = "";
+            foreach (string file in Files.Items)
+            {
+                if (Files.GetSelected(Files.Items.IndexOf(file)))
+                {
+                    Selected = file;
+                    break;
+                }
+            }
+            if (Selected != "")
+            { 
+                //ListOfFiles[Selected]
+                // скачать
+            }
+
+                //код для скачивания файлов с сервера
+            IsDownload = true;
+            this.Enabled = false;
+            this.Visible = false;
         }
     }
 }
