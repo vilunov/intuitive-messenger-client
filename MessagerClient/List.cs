@@ -17,9 +17,19 @@ namespace MessagerClient
 
         public void AddFileToList(String File)
         {
-            if (!ListOfFiles.ContainsKey(System.IO.Path.GetFileName(File)))
-                ListOfFiles.Add(System.IO.Path.GetFileName(File), File);
-            Files.Items.Add(System.IO.Path.GetFileName(File));
+            //Короче я хуй знает зачем это нужно было, но мне нужен был просто список файлов на сервере
+            //if (!ListOfFiles.ContainsKey(System.IO.Path.GetFileName(File)))
+            //    ListOfFiles.Add(System.IO.Path.GetFileName(File), File);
+            //Files.Items.Add(System.IO.Path.GetFileName(File));
+            if (!ListOfFiles.ContainsKey(File))
+                ListOfFiles.Add(File, File);
+            Files.Items.Add(File);
+        }
+
+        public void removeAllFiles()
+        {
+            ListOfFiles.Clear();
+            Files.Items.Clear();
         }
 
         private void Exit_Click(object sender, EventArgs e)
