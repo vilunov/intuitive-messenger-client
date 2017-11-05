@@ -100,7 +100,10 @@ namespace MessagerClient
 
                 string messg = getResponse();
 
-                if (messg != "" && messg.Split('#').Length > 1)
+                if (messg == "")
+                    continue;
+
+                if (messg.Split('#').Length > 1)
                 {
                     string[] messages = messg.Split('#');
 
@@ -127,7 +130,7 @@ namespace MessagerClient
 
                 ChatMessage message = JsonConvert.DeserializeObject<ChatMessage>(messg);
 
-                if (messg != "" && message.type == "Table info")
+                if (message.type == "Table info")
                 {
                     List.removeAllFiles();
                     string[] files = message.text.Split(';');
@@ -135,14 +138,14 @@ namespace MessagerClient
                     List.AddFileToList(file);
                 }
 
-                if (messg != "" && message.type == "Text" && message.name != Name)
+                if (message.type == "Text" && message.name != Name)
                 {
                     History.AppendText(message.date + "  " + message.name + ": " + message.text + "\n");
                     History.ScrollToCaret();
                 }
 
                 //Ответ сервера на запрос о файле
-                if (messg != "" && message.type == "File")
+                if (message.type == "File")
                 {
                     if(Directory.Exists(FILE_DIR))
                         System.IO.File.WriteAllBytes(FILE_DIR+message.filename, System.Convert.FromBase64String(message.text));
