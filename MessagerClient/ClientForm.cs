@@ -33,7 +33,7 @@ namespace MessagerClient
         private String File = "";
         private TcpClient client;
         private List List;
-        public const string SERVER_IP = "localhost";
+        public const string SERVER_IP = "192.168.0.107";
         public const int SERVER_PORT = 8080;
         public const string FILE_DIR = "files\\";
 
@@ -140,7 +140,7 @@ namespace MessagerClient
 
                 if (message.type == "Text" && message.name != Name)
                 {
-                    History.AppendText(message.date + "  " + message.name + ": " + message.text + "\n");
+                    History.AppendText(message.date+": "+message.date + "  " + message.name + ": " + message.text + "\n");
                     History.ScrollToCaret();
                 }
 
