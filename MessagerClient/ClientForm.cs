@@ -140,7 +140,7 @@ namespace MessagerClient
 
                 if (message.type == "Text" && message.name != Name)
                 {
-                    History.AppendText(message.date+": "+message.date + "  " + message.name + ": " + message.text + "\n");
+                    History.AppendText(message.date+":"+ message.name + ": " + message.text + "\n");
                     History.ScrollToCaret();
                 }
 
