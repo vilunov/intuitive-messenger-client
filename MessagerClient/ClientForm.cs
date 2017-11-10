@@ -288,12 +288,14 @@ namespace MessagerClient
                 }
 
                 NetworkStream stream = client.GetStream();
+                if (!stream.DataAvailable)
+                    return response;
 
-                byte[] data = new byte[256];
-                while (stream.DataAvailable)
-                {
+                byte[] data = new byte[client.ReceiveBufferSize];
+                while (!response.EndsWith("}"))
+                { 
                     int bytes = stream.Read(data, 0, data.Length);
-                    response += Encoding.UTF8.GetString(data, 0, bytes).ToString();
+                    response += Encoding.UTF8.GetString(data, 0, bytes);
                 }
 
                 stream.Flush();
