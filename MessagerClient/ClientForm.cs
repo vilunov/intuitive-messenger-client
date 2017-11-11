@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net.Sockets;
 using Newtonsoft.Json;
@@ -30,29 +29,31 @@ namespace MessagerClient
         }
 
         private String Name;
+        private static String IP;
         private String File = "";
         private TcpClient client;
         private List List;
-        public const string SERVER_IP = "192.168.0.107";
+        public string SERVER_IP = IP;
         public const int SERVER_PORT = 8080;
         public const string FILE_DIR = "files\\";
 
         public Client()
         {
             // закоментил подключение к серверу
-            client = new TcpClient();
-            client.Connect(SERVER_IP, SERVER_PORT);
             InitializeComponent();
             this.Enabled = false;
             Welcome Welcome = new Welcome();
             Welcome.Activate();
             Welcome.Show();
             Welcome.Refresh();
-            while (Welcome.Username == "")
+            while (Welcome.Username == "" && Welcome.IP == "")
             {
                 Application.DoEvents();
             }
             Name = Welcome.Username;
+            IP = Welcome.IP;
+            client = new TcpClient();
+            client.Connect(Welcome.IP, SERVER_PORT);
             Welcome.Close();
             this.Enabled = true;
             this.Show();
@@ -68,11 +69,6 @@ namespace MessagerClient
         private void Send_Click(object sender, EventArgs e)
         {
             sendFile();
-
-            /*History.SelectionFont = new Font(History.SelectionFont, FontStyle.Bold);
-            History.AppendText(DateTime.Now.ToLongTimeString() + "\t" + Name + ": ");
-            History.SelectionFont = new Font(History.SelectionFont, FontStyle.Regular);
-            History.AppendText(Message.Text + "\n");*/
 
             // for compression testing
             //byte[] arr = Compressor.Compress(new byte[] { 1, 3, 3, 7 });

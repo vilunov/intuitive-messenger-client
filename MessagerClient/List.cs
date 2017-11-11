@@ -17,10 +17,6 @@ namespace MessagerClient
 
         public void AddFileToList(String File)
         {
-            //Короче я хуй знает зачем это нужно было, но мне нужен был просто список файлов на сервере
-            //if (!ListOfFiles.ContainsKey(System.IO.Path.GetFileName(File)))
-            //    ListOfFiles.Add(System.IO.Path.GetFileName(File), File);
-            //Files.Items.Add(System.IO.Path.GetFileName(File));
             if (!ListOfFiles.ContainsKey(File))
                 ListOfFiles.Add(File, File);
             Files.Items.Add(File);
@@ -54,7 +50,6 @@ namespace MessagerClient
                 //ListOfFiles[Selected]
                 // скачать
             }
-
                 //код для скачивания файлов с сервера
             IsDownload = true;
             this.Enabled = false;

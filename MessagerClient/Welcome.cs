@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace MessagerClient
@@ -18,10 +11,12 @@ namespace MessagerClient
         }
 
         public String Username = "";
+        public String IP = "";
 
         private void EnterName_Click(object sender, EventArgs e)
         {
-            Username = textBox.Text;
+            Username = UsernameBox.Text;
+            IP = ipBox.Text;
         }
     }
 }
