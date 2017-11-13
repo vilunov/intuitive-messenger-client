@@ -29,11 +29,10 @@ namespace MessagerClient
         }
 
         private String Name;
-        private static String IP;
         private String File = "";
         private TcpClient client;
         private List List;
-        public string SERVER_IP = IP;
+        public static string SERVER_IP;
         public const int SERVER_PORT = 8080;
         public const string FILE_DIR = "files\\";
 
@@ -51,9 +50,9 @@ namespace MessagerClient
                 Application.DoEvents();
             }
             Name = Welcome.Username;
-            IP = Welcome.IP;
+            SERVER_IP = Welcome.IP;
             client = new TcpClient();
-            client.Connect(Welcome.IP, SERVER_PORT);
+            client.Connect(SERVER_IP, SERVER_PORT);
             Welcome.Close();
             this.Enabled = true;
             this.Show();
