@@ -61,7 +61,6 @@ namespace MessagerClient
                 Visible = false,
                 Enabled = false
             };
-
             ServerSays();
         }
 
@@ -89,8 +88,8 @@ namespace MessagerClient
 
         private void ServerSays()
         {
-            //WARNING THIS IS SHIT
-            while (true)
+            //WARNING THIS IS KOCTb|/\b look at Program.cs
+            while (!this.IsDisposed)
             {
                 Application.DoEvents();
 
@@ -186,7 +185,7 @@ namespace MessagerClient
         private void Attach_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Multiselect = false; // allow/deny user to upload more than one file at a time
+            dialog.Multiselect = false;
             if (dialog.ShowDialog() == DialogResult.OK) // if user clicked OK
             {
                 File = dialog.FileName; // get name of file
