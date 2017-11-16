@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.Drawing;
+using System.IO;
+using System.Net.Sockets;
 using System.Text;
 using System.Windows.Forms;
-using System.Net.Sockets;
-using Newtonsoft.Json;
-using System.IO;
-using System.Drawing;
 
 namespace MessagerClient
 {
@@ -67,7 +67,7 @@ namespace MessagerClient
 
         private void Send_Click(object sender, EventArgs e)
         {
-            sendFile();
+            SendFile();
 
             // for compression testing
             //byte[] arr = Compressor.Compress(new byte[] { 1, 3, 3, 7 });
@@ -81,7 +81,7 @@ namespace MessagerClient
                 History.ScrollToCaret();
                 String messg = JsonConvert.SerializeObject(new ChatMessage("Text", Name, "", DateTime.Now.ToLongTimeString(), Message.Text));
                 byte[] data = System.Text.Encoding.UTF8.GetBytes(messg);
-                sendBytes(data);
+                SendBytes(data);
             }
 
             Message.Clear();
@@ -89,11 +89,12 @@ namespace MessagerClient
 
         private void ServerSays()
         {
+            //WARNING THIS IS SHIT
             while (true)
             {
                 Application.DoEvents();
 
-                string messg = getResponse();
+                string messg = GetResponse();
 
                 if (messg == "")
                     continue;
@@ -182,6 +183,17 @@ namespace MessagerClient
             File = files[0];
         }
 
+        private void Attach_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Multiselect = false; // allow/deny user to upload more than one file at a time
+            if (dialog.ShowDialog() == DialogResult.OK) // if user clicked OK
+            {
+                File = dialog.FileName; // get name of file
+                Send.PerformClick();
+            }
+        }
+
         private void FilesList_Click(object sender, EventArgs e)
         {
             List.Enabled = true;
@@ -208,7 +220,7 @@ namespace MessagerClient
                     //Жалобное прошение выделенного файла
                     String messg = JsonConvert.SerializeObject(new ChatMessage("File Request", Name, Selected, DateTime.Now.ToLongTimeString(),""));
                     byte[] data = System.Text.Encoding.UTF8.GetBytes(messg);
-                    sendBytes(data);
+                    SendBytes(data);
                 }
 
                 List.IsDownload = false;
@@ -219,7 +231,7 @@ namespace MessagerClient
         }
 
         //Льет текущее значение File на сервер и обнуляет его
-        private void sendFile()
+        private void SendFile()
         {
             if (File != "")
             {
@@ -234,13 +246,13 @@ namespace MessagerClient
                 string filename = File.Split('\\')[File.Split('\\').Length - 1];
                 String messg = JsonConvert.SerializeObject(new ChatMessage("File", Name, filename, DateTime.Now.ToLongTimeString(), file));
                 byte[] data = System.Text.Encoding.UTF8.GetBytes(messg);
-                sendBytes(data);
+                SendBytes(data);
                 File = "";
             }
         }
 
         //Отправляет байтики отформатированного жсон стринга на сервер
-        private void sendBytes(byte[] bytes)
+        private void SendBytes(byte[] bytes)
         {
             try
             {
@@ -271,7 +283,7 @@ namespace MessagerClient
         }
 
         //Пиздеж ответа сервера
-        private string getResponse()
+        private string GetResponse()
         {
             string response = "";
             try

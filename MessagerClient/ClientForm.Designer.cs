@@ -34,6 +34,7 @@ namespace MessagerClient
             this.History = new System.Windows.Forms.RichTextBox();
             this.Message = new System.Windows.Forms.RichTextBox();
             this.FilesList = new System.Windows.Forms.Button();
+            this.Attach = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // Send
@@ -42,9 +43,9 @@ namespace MessagerClient
             this.Send.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.Send.Font = new System.Drawing.Font("Franklin Gothic Medium", 16F, System.Drawing.FontStyle.Bold);
             this.Send.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.Send.Location = new System.Drawing.Point(689, 338);
+            this.Send.Location = new System.Drawing.Point(763, 338);
             this.Send.Name = "Send";
-            this.Send.Size = new System.Drawing.Size(155, 93);
+            this.Send.Size = new System.Drawing.Size(121, 53);
             this.Send.TabIndex = 0;
             this.Send.Text = "Send";
             this.Send.UseVisualStyleBackColor = false;
@@ -67,7 +68,7 @@ namespace MessagerClient
             this.Message.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
             this.Message.Location = new System.Drawing.Point(13, 338);
             this.Message.Name = "Message";
-            this.Message.Size = new System.Drawing.Size(669, 93);
+            this.Message.Size = new System.Drawing.Size(744, 107);
             this.Message.TabIndex = 3;
             this.Message.Tag = "";
             this.Message.Text = "";
@@ -80,13 +81,27 @@ namespace MessagerClient
             this.FilesList.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.FilesList.Font = new System.Drawing.Font("Franklin Gothic Medium", 16F, System.Drawing.FontStyle.Bold);
             this.FilesList.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.FilesList.Location = new System.Drawing.Point(850, 338);
+            this.FilesList.Location = new System.Drawing.Point(890, 338);
             this.FilesList.Name = "FilesList";
-            this.FilesList.Size = new System.Drawing.Size(155, 93);
+            this.FilesList.Size = new System.Drawing.Size(113, 53);
             this.FilesList.TabIndex = 4;
             this.FilesList.Text = "FILES";
             this.FilesList.UseVisualStyleBackColor = false;
             this.FilesList.Click += new System.EventHandler(this.FilesList_Click);
+            // 
+            // Attach
+            // 
+            this.Attach.BackColor = System.Drawing.SystemColors.Highlight;
+            this.Attach.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.Attach.Font = new System.Drawing.Font("Franklin Gothic Medium", 16F, System.Drawing.FontStyle.Bold);
+            this.Attach.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.Attach.Location = new System.Drawing.Point(763, 397);
+            this.Attach.Name = "Attach";
+            this.Attach.Size = new System.Drawing.Size(242, 48);
+            this.Attach.TabIndex = 5;
+            this.Attach.Text = "Attach";
+            this.Attach.UseVisualStyleBackColor = false;
+            this.Attach.Click += new System.EventHandler(this.Attach_Click);
             // 
             // Client
             // 
@@ -95,7 +110,8 @@ namespace MessagerClient
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(1017, 453);
+            this.ClientSize = new System.Drawing.Size(1010, 450);
+            this.Controls.Add(this.Attach);
             this.Controls.Add(this.FilesList);
             this.Controls.Add(this.Message);
             this.Controls.Add(this.History);
@@ -112,6 +128,7 @@ namespace MessagerClient
         private System.Windows.Forms.RichTextBox History;
         private System.Windows.Forms.RichTextBox Message;
         private Button FilesList;
+        private Button Attach;
     }
 }
 
