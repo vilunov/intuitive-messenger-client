@@ -7,7 +7,7 @@ namespace MessagerClient
     public partial class List : Form
     {
         //HashMap, you can take path offile by its name
-        public Dictionary<String, String> ListOfFiles = new Dictionary<String, String>();
+        public List<String> ListOfFiles = new List<String>();
         public bool IsDownload;
 
         public List()
@@ -17,9 +17,8 @@ namespace MessagerClient
 
         public void AddFileToList(String File)
         {
-            if (!ListOfFiles.ContainsKey(File))
-                ListOfFiles.Add(File, File);
-            Files.Items.Add(File);
+            if (!ListOfFiles.Contains(File)) {
+                ListOfFiles.Add(File); }
         }
 
         public void removeAllFiles()
@@ -45,13 +44,11 @@ namespace MessagerClient
                     break;
                 }
             }
+                //код для скачивания файлов с сервера
             if (Selected != "")
             { 
-                //ListOfFiles[Selected]
-                // скачать
+                IsDownload = true;
             }
-                //код для скачивания файлов с сервера
-            IsDownload = true;
             this.Enabled = false;
             this.Visible = false;
         }

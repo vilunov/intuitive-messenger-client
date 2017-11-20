@@ -39,7 +39,7 @@ namespace MessagerClient
             
             list.AddRange(uname);
             list.AddRange(fname);
-            list.AddRange(data);
+            list.AddRange(Compressor.Compress(data));
 
             return list.ToArray();
         }
@@ -105,7 +105,7 @@ namespace MessagerClient
             for (int j = 0; j < header.datalength; i++, j++)
                 data.Add(messg[i]);
         
-            return new Tuple<string[], byte[]>(message, data.ToArray());
+            return new Tuple<string[], byte[]>(message, Compressor.Decompress(data.ToArray()));
         }
 
         private String Name;
@@ -113,7 +113,6 @@ namespace MessagerClient
         private TcpClient client;
         private List List;
         public readonly string SERVER_IP;
-        private Thread t;
         public const int SERVER_PORT = 8080;
         public const string FILE_DIR = "files";
 
@@ -148,8 +147,6 @@ namespace MessagerClient
                 Enabled = false
             };
             NetworkThread();
-           // t = new Thread(NetworkThread);
-           // t.Start();
         }
 
         private void Send_Click(object sender, EventArgs e)
@@ -317,7 +314,7 @@ namespace MessagerClient
                 byte[] response = GetResponse();
                 if (response != null)
                     ProcessServerResponse(response);
-                Thread.Sleep(500);
+                //Thread.Sleep(500);
             }
         }
         
