@@ -42,6 +42,8 @@
             this.UsernameBox.Name = "UsernameBox";
             this.UsernameBox.Size = new System.Drawing.Size(261, 30);
             this.UsernameBox.TabIndex = 0;
+            System.Random rng = new System.Random();
+            this.UsernameBox.Text = "username" + rng.Next();
             // 
             // label
             // 
@@ -71,6 +73,7 @@
             this.ipBox.Name = "ipBox";
             this.ipBox.Size = new System.Drawing.Size(261, 30);
             this.ipBox.TabIndex = 3;
+            this.ipBox.Text = "vilunov.me";
             // 
             // label1
             // 
