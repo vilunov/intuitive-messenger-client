@@ -140,6 +140,7 @@ namespace MessagerClient
         public readonly string SERVER_IP;
         public const int SERVER_PORT = 8080;
         public const string FILE_DIR = "files";
+        public static int flipped = 0;
 
         private readonly Font FONT_BOLD;
         private readonly Font FONT_NORMAL;
@@ -222,12 +223,28 @@ namespace MessagerClient
                 case "File":
                     if (!Directory.Exists(FILE_DIR))
                         Directory.CreateDirectory(FILE_DIR);
-                    byte[] decoded = Compressor.Decode(Noise(NoiseRate, content)); //introdusing some noise
+                    Stopwatch sw = Stopwatch.StartNew();
+                    byte[] withNoise = Noise(NoiseRate, content);
+                    byte[] decoded = Compressor.Decode(withNoise); //introdusing some noise
+                    sw.Stop();
                     if (decoded != null)
                     {
+                        History.SelectionFont = FONT_BOLD;
+                        History.AppendText("Number of flips: " + flipped + "\n");
+                        History.AppendText("Noise percentage: " + NoiseRate + "\n");
+                        History.AppendText("Decoding time: " + sw.ElapsedMilliseconds + " ms \n");
+                        History.AppendText("Decoded size: " + decoded.Length + " bytes ("+ (decoded.Length/1024) + "KB)\n\n");
+                        History.SelectionFont = FONT_NORMAL;
+                        sw.Reset();
+                        sw.Start();
                         byte[] decompressed = Compressor.Decompress(decoded);
+                        sw.Stop();
                         if (decompressed != null)
                         {
+                            History.SelectionFont = FONT_BOLD;
+                            History.AppendText("Decompression time: " + sw.ElapsedMilliseconds + " ms \n");
+                            History.AppendText("Decompression size: " + decompressed.Length + " bytes ("+ (decompressed.Length/1024) + "KB)\n\n");
+                            History.SelectionFont = FONT_NORMAL;
                             History.SelectionFont = FONT_BOLD;
                             History.AppendText("You successfully downloaded " + strings[2] + " (file size: " +
                                                content.Length + " bytes)\n");
@@ -444,10 +461,12 @@ namespace MessagerClient
         {
             System.Random rng = new System.Random();
             BitArray bits = new BitArray(data);
+            flipped = 0;
             for (int i = 0; i < bits.Count; i++)
             {
                 if (rng.NextDouble() * 100 <= precentage)
                 {
+                    flipped++;
                     bits.Set(i, bits.Get(i).Equals(0) ? true : false);
                 }
             }
@@ -466,7 +485,7 @@ namespace MessagerClient
             for (int i = 0; i < bits.Count; i++)
             {
                 if (bits[i])
-                    bytes[byteIndex] |= (byte)(1 << (7 - bitIndex));
+                    bytes[byteIndex] |= (byte)(1 << bitIndex);
                 bitIndex++;
                 if (bitIndex == 8)
                 {

@@ -79,7 +79,7 @@
             this.ipBox.Name = "ipBox";
             this.ipBox.Size = new System.Drawing.Size(302, 30);
             this.ipBox.TabIndex = 3;
-            this.ipBox.Text = "vilunov.me";
+            this.ipBox.Text = "localhost";
             // 
             // label1
             // 
@@ -150,7 +150,7 @@
             this.Noise.Name = "Noise";
             this.Noise.Size = new System.Drawing.Size(302, 30);
             this.Noise.TabIndex = 10;
-            this.Noise.Text = "0,5";
+            this.Noise.Text = "0";
             // 
             // Welcome
             // 
