@@ -185,9 +185,7 @@ namespace MessagerClient
                         List.AddFileToList(file);
                     break;
                 case "Text":
-                    if (strings[1] != Name || content == null) break;
-                    Console.WriteLine(strings[1]);
-                    Console.WriteLine(Name);
+                    if (strings[1] == Name || content == null) break;
                     History.AppendText(strings[1] + ": " + Encoding.UTF8.GetString(content) + "\n");
                     History.ScrollToCaret();
                     break;
