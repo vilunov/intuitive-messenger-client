@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -23,9 +24,24 @@ namespace MessagerClient
                     break;
                 case "File":
                     History.SelectionFont = FONT_BOLD;
-                    History.AppendText("File " + filename + " was successuflly compressed from " + data.Length + " bytes");
+                    History.AppendText("File " + filename + " was successuflly compressed from " + data.Length + 
+                                       " bytes ("+ (data.Length/1024) + "KB)\n");
+                    Stopwatch sw = new Stopwatch();
+                    sw.Start();
                     data = Compressor.Compress(data);
-                    History.AppendText(" to " + data.Length + " bytes\n");
+                    sw.Stop();
+                    long t = sw.ElapsedMilliseconds;
+                    History.AppendText("Algorithm: " + Compressor.CurrCompression + "\n");
+                    History.AppendText("Time: " + t + " ms\n");
+                    History.AppendText("Compressed size: " + data.Length + " bytes ("+ (data.Length/1024) + "KB)\n\n");
+                    sw.Reset();
+                    sw.Start();
+                    data = Compressor.Encode(data);
+                    sw.Stop();
+                    t = sw.ElapsedMilliseconds;
+                    History.AppendText("Algorithm: " + Compressor.CurrEncoding + "\n");
+                    History.AppendText("Time: " + t + " ms\n");
+                    History.AppendText("Encoded size: " + data.Length + " bytes ("+ (data.Length/1024) + "KB)\n\n");
                     History.SelectionFont = FONT_NORMAL;
                     History.ScrollToCaret();
                     History.Refresh();
@@ -203,26 +219,39 @@ namespace MessagerClient
                 case "File":
                     if (!Directory.Exists(FILE_DIR))
                         Directory.CreateDirectory(FILE_DIR);
-                    byte[] decompressed = Compressor.Decompress(content);
-                    if (decompressed != null)
+                    byte[] decoded = Compressor.Decode(content);
+                    if (decoded != null)
                     {
-                        History.SelectionFont = FONT_BOLD;
-                        History.AppendText("You successfully downloaded " + strings[2] + " (file size: " + content.Length +  " bytes)\n");
-                        History.SelectionFont = FONT_NORMAL;
-                        byte[] data = Compressor.Decompress(content);
-                        System.IO.File.WriteAllBytes(Path.Combine(FILE_DIR, strings[2]),
-                            data);
+                        byte[] decompressed = Compressor.Decompress(decoded);
+                        if (decompressed != null)
+                        {
+                            History.SelectionFont = FONT_BOLD;
+                            History.AppendText("You successfully downloaded " + strings[2] + " (file size: " +
+                                               content.Length + " bytes)\n");
+                            History.SelectionFont = FONT_NORMAL;
+                            byte[] data = decompressed;
+                            System.IO.File.WriteAllBytes(Path.Combine(FILE_DIR, strings[2]),
+                                data);
 
-                        History.SelectionFont = FONT_BOLD;
-                        History.AppendText("Successfully decompressed to " + data.Length + " bytes" +"\n");
-                        History.SelectionFont = FONT_NORMAL;
-                        History.ScrollToCaret();
-                        History.Refresh();
+                            History.SelectionFont = FONT_BOLD;
+                            History.AppendText("Successfully decompressed to " + data.Length + " bytes" + "\n");
+                            History.SelectionFont = FONT_NORMAL;
+                            History.ScrollToCaret();
+                            History.Refresh();
+                        }
+                        else
+                        {
+                            History.SelectionFont = FONT_BOLD;
+                            History.AppendText(" Failed to decompress " + strings[2] + "\n");
+                            History.SelectionFont = FONT_NORMAL;
+                            History.ScrollToCaret();
+                            History.Refresh();
+                        }
                     }
                     else
                     {
                         History.SelectionFont = FONT_BOLD;
-                        History.AppendText(" Failed to decompress " + strings[2] + "\n");
+                        History.AppendText(" Failed to decoded " + strings[2] + "\n");
                         History.SelectionFont = FONT_NORMAL;
                         History.ScrollToCaret();
                         History.Refresh();
