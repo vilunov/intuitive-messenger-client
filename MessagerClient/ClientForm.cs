@@ -15,7 +15,6 @@ namespace MessagerClient
 
         private byte[] generateChatMessage(String type, String name, String filename, byte[] data)
         {
-            data = Compressor.Compress(data);
             List<byte> list = new List<byte>();
             switch (type)
             {
@@ -23,6 +22,7 @@ namespace MessagerClient
                     list.Add(0);
                     break;
                 case "File":
+                    data = Compressor.Compress(data);
                     list.Add(1);
                     break;
                 case "File Request":
@@ -192,13 +192,26 @@ namespace MessagerClient
                 case "File":
                     if (!Directory.Exists(FILE_DIR))
                         Directory.CreateDirectory(FILE_DIR);
-                    System.IO.File.WriteAllBytes(Path.Combine(FILE_DIR, strings[2]), Compressor.Decompress(content));
+                    byte[] decompressed = Compressor.Decompress(content);
+                    if (decompressed != null)
+                    {
+                        System.IO.File.WriteAllBytes(Path.Combine(FILE_DIR, strings[2]),
+                            Compressor.Decompress(content));
 
-                    History.SelectionFont = FONT_BOLD;
-                    History.AppendText(" You successfully downloaded " + strings[2] + "\n");
-                    History.SelectionFont = FONT_NORMAL;
-                    History.ScrollToCaret();
-                    History.Refresh();
+                        History.SelectionFont = FONT_BOLD;
+                        History.AppendText(" You successfully downloaded " + strings[2] + "\n");
+                        History.SelectionFont = FONT_NORMAL;
+                        History.ScrollToCaret();
+                        History.Refresh();
+                    }
+                    else
+                    {
+                        History.SelectionFont = FONT_BOLD;
+                        History.AppendText(" Failed to decompress " + strings[2] + "\n");
+                        History.SelectionFont = FONT_NORMAL;
+                        History.ScrollToCaret();
+                        History.Refresh();
+                    }
                     break;
             }
         }
@@ -319,10 +332,9 @@ namespace MessagerClient
             }
         }
         
+        private List<byte> output = new List<byte>(); 
         private byte[] GetResponse()
         {
-            List<byte> output = new List<byte>();
-            
             try
             {
                 while (!client.Connected)
@@ -332,32 +344,46 @@ namespace MessagerClient
                 }
 
                 NetworkStream stream = client.GetStream();
-
+                
                 byte[] data = new byte[client.ReceiveBufferSize];
+                if (output.Count < 7)
+                {
+                    if (!stream.DataAvailable) return null;
+                    int bytes = stream.Read(data, 0, data.Length);
+                    if (bytes == 0)
+                        return null;
+                    for(int i = 0; i < bytes; i++)
+                        output.Add(data[i]);
+                }
+               
+                MessageHeader header = extractHeader(output.GetRange(0, 7).ToArray());
 
-                if (!stream.DataAvailable) return null;
-                int bytes = stream.Read(data, 0, data.Length);
-                if (bytes == 0)
-                    return null;
-                MessageHeader header = extractHeader(data);
-                for(int i = 0; i < bytes; i++)
-                    output.Add(data[i]);
-
-                if (output.Count >= header.name + header.fname + header.datalength + 7)
-                    return output.ToArray();
+                int len = header.name + header.fname + header.datalength + 7;
+                if (output.Count >= len)
+                {
+                    var ret = output.GetRange(0, len).ToArray();
+                    output = output.GetRange(len, output.Count - len);
+                    return ret.ToArray();
+                }
                 while (true)
                 {
                     Thread.Sleep(50);
                     if (!stream.DataAvailable)
                         break;
-                    bytes = stream.Read(data, 0, data.Length);
+                    int bytes = stream.Read(data, 0, data.Length);
                     if (bytes == 0) break;
-                    if (output.Count >= header.name + header.fname + header.datalength + 7) break;
+                    if (output.Count >= len) break;
                     for(int i = 0; i < bytes; i++)
                         output.Add(data[i]);
                 }
                 stream.Flush();
-                return output.Count >= header.name + header.fname + header.datalength + 7 ? output.ToArray() : null;
+                if (output.Count >= len)
+                {
+                    var ret = output.GetRange(0, len).ToArray();
+                    output = output.GetRange(len, output.Count - len);
+                    return ret.ToArray();
+                }
+                return null;
             }
             catch (SocketException ex)
             {

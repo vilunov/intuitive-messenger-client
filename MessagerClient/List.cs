@@ -7,7 +7,6 @@ namespace MessagerClient
     public partial class List : Form
     {
         //HashMap, you can take path offile by its name
-        public List<String> ListOfFiles = new List<String>();
         public bool IsDownload;
 
         public List()
@@ -17,13 +16,12 @@ namespace MessagerClient
 
         public void AddFileToList(String File)
         {
-            if (!ListOfFiles.Contains(File)) {
-                ListOfFiles.Add(File); }
+            if (!Files.Items.Contains(File))
+                Files.Items.Add(File);
         }
 
         public void removeAllFiles()
         {
-            ListOfFiles.Clear();
             Files.Items.Clear();
         }
 
