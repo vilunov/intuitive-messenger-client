@@ -15,6 +15,7 @@ namespace MessagerClient
 
         private byte[] generateChatMessage(String type, String name, String filename, byte[] data)
         {
+            data = Compressor.Compress(data);
             List<byte> list = new List<byte>();
             switch (type)
             {
@@ -39,7 +40,7 @@ namespace MessagerClient
             
             list.AddRange(uname);
             list.AddRange(fname);
-            list.AddRange(Compressor.Compress(data));
+            list.AddRange(data);
 
             return list.ToArray();
         }
@@ -105,7 +106,7 @@ namespace MessagerClient
             for (int j = 0; j < header.datalength; i++, j++)
                 data.Add(messg[i]);
         
-            return new Tuple<string[], byte[]>(message, Compressor.Decompress(data.ToArray()));
+            return new Tuple<string[], byte[]>(message, data.ToArray());
         }
 
         private String Name;
@@ -191,7 +192,7 @@ namespace MessagerClient
                 case "File":
                     if (!Directory.Exists(FILE_DIR))
                         Directory.CreateDirectory(FILE_DIR);
-                    System.IO.File.WriteAllBytes(Path.Combine(FILE_DIR, strings[2]), content);
+                    System.IO.File.WriteAllBytes(Path.Combine(FILE_DIR, strings[2]), Compressor.Decompress(content));
 
                     History.SelectionFont = FONT_BOLD;
                     History.AppendText(" You successfully downloaded " + strings[2] + "\n");
