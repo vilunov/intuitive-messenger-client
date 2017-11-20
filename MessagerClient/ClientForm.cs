@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Windows.Forms;
@@ -10,51 +12,40 @@ namespace MessagerClient
     public partial class Client : Form
     {
 
-        private byte[] appendBytes(byte[] bt1, byte[] bt2)
+        private byte[] generateChatMessage(String type, String name, String filename, byte[] data)
         {
-            byte[] result = new byte[bt1.Length + bt2.Length];
-            for (int i = 0; i < bt1.Length + bt2.Length; i++)
-                if (i < bt1.Length)
-                    result[i] = bt1[i];
-                else
-                    result[i] = bt2[i - bt1.Length];
-
-            return result;
-        }
-
-        private byte[] generateChatMessage(String type, String name, String filename, String text)
-        {
-            byte[] message = new byte[1];
+            List<byte> list = new List<byte>();
             switch (type)
             {
                 case "Text":
-                    message[0] = 0;
+                    list.Add(0);
                     break;
                 case "File":
-                    message[0] = 1;
+                    list.Add(1);
                     break;
                 case "File Request":
-                    message[0] = 2;
+                    list.Add(2);
                     break;
             }
 
-            byte[] uname = System.Text.Encoding.UTF8.GetBytes(name);
-            byte[] fname = System.Text.Encoding.UTF8.GetBytes(filename);
-            byte[] txt = System.Text.Encoding.UTF8.GetBytes(text + "END");
+            byte[] uname = Encoding.UTF8.GetBytes(name);
+            byte[] fname = Encoding.UTF8.GetBytes(filename);
+            byte[] dataLength = BitConverter.GetBytes(data.Length);
 
-            message = appendBytes(message, new byte[] { (byte)uname.Length });
-            message = appendBytes(message, new byte[] { (byte)fname.Length });
+            list.Add((byte)uname.Length);
+            list.Add((byte)fname.Length);
+            list.AddRange(BitConverter.IsLittleEndian ? dataLength : dataLength.Reverse());
+            
+            list.AddRange(uname);
+            list.AddRange(fname);
+            list.AddRange(data);
 
-            message = appendBytes(message, uname);
-            message = appendBytes(message, fname);
-            message = appendBytes(message, txt);
-
-            return message;
+            return list.ToArray();
         }
 
-        private String[] extractChatMessage(byte[] messg)
+        private Tuple<string[], byte[]> extractChatMessage(byte[] messg)
         {
-            String[] message = new String[4];
+            string[] message = new string[3];
             switch (messg[0])
             {
                 case 0:
@@ -71,15 +62,18 @@ namespace MessagerClient
                     break;
             }
 
-            int namesize = (int)messg[1];
-            int filenamesize = (int)messg[2];
+            int namesize = messg[1];
+            int filenamesize = messg[2];
+            byte[] contentSize = {messg[3], messg[4], messg[5], messg[6]};
+            int contentSizeC = BitConverter.ToInt32(BitConverter.IsLittleEndian ? contentSize : contentSize.Reverse().ToArray(), 0);
 
+            int i = 7;
             if (namesize != 0)
             {
                 byte[] uname = new byte[namesize];
-                for (int i = 3; i < 3 + namesize; i++)
-                    uname[i - 3] = messg[i];
-                message[1] = System.Text.Encoding.UTF8.GetString(uname);
+                for (int j = 0; j < namesize; i++, j++)
+                    uname[j] = messg[i];
+                message[1] = Encoding.UTF8.GetString(uname);
             }
             else
                 message[1] = "";
@@ -87,40 +81,40 @@ namespace MessagerClient
             if (filenamesize != 0)
             {
                 byte[] fname = new byte[filenamesize];
-                for (int i = 3 + namesize; i < 3 + namesize + filenamesize; i++)
-                    fname[i - 3 - namesize] = messg[i];
-                message[2] = System.Text.Encoding.UTF8.GetString(fname);
+                for (int j = 0; j < filenamesize; i++, j++)
+                    fname[j] = messg[i];
+                message[2] = Encoding.UTF8.GetString(fname);
             }
             else
                 message[2] = "";
+
+            if (3 + namesize + filenamesize == messg.Length)
+                return new Tuple<string[], byte[]>(message, null);
             
-            if (3+namesize+filenamesize != messg.Length)
-            {
-                byte[] txt = new byte[messg.Length - 3 - namesize - filenamesize];
-                for (int i = 3 + namesize + filenamesize; i < messg.Length; i++)
-                    txt[i - 3 - namesize - filenamesize] = messg[i];
-                if (message[0] == "File")
-                    message[3] = System.Text.Encoding.UTF8.GetString(txt);
-                else
-                    message[3] = System.Text.Encoding.UTF8.GetString(txt);
-            }
-            else
-                message[3] = "";
-            return message;
+            List<byte> data = new List<byte>(messg.Length - 3 - namesize - filenamesize);
+            for (int j = 0; j < contentSizeC; i++, j++)
+                data.Add(messg[i]);
+        
+            return new Tuple<string[], byte[]>(message, data.ToArray());
         }
 
         private String Name;
         private String File = "";
         private TcpClient client;
         private List List;
-        public static string SERVER_IP;
+        public readonly string SERVER_IP;
         public const int SERVER_PORT = 8080;
-        public const string FILE_DIR = "files\\";
+        public const string FILE_DIR = "files";
+
+        private readonly Font FONT_BOLD;
+        private readonly Font FONT_NORMAL;
 
         public Client()
         {
-            // закоментил подключение к серверу
             InitializeComponent();
+            FONT_BOLD = new Font(History.SelectionFont, FontStyle.Bold);
+            FONT_NORMAL = new Font(History.SelectionFont, FontStyle.Regular);
+            
             this.Enabled = false;
             Welcome Welcome = new Welcome();
             Welcome.Activate();
@@ -149,17 +143,12 @@ namespace MessagerClient
         {
             SendFile();
 
-            // for compression testing
-            //byte[] arr = Compressor.Compress(new byte[] { 1, 3, 3, 7 });
-            //foreach(var n in arr)
-            //History.AppendText(n.ToString());
-
             //Фикс отправки пробельчиков
             if (!String.IsNullOrWhiteSpace(Message.Text))
             {
                 History.AppendText(Name + ": " + Message.Text + "\n");
                 History.ScrollToCaret();
-                byte[] data = generateChatMessage("Text", Name, "", Message.Text);
+                byte[] data = generateChatMessage("Text", Name, "", Encoding.UTF8.GetBytes(Message.Text));
                 SendBytes(data);
             }
 
@@ -173,84 +162,50 @@ namespace MessagerClient
             {
                 Application.DoEvents();
 
-                string messg = GetResponse();
+                byte[] messg = GetResponse();
 
-                if (messg == "")
+                if (messg == null)
                     continue;
 
-                if (messg.Split('#').Length > 1)
+                var message = extractChatMessage(messg);
+                string[] strings = message.Item1;
+                byte[] content = message.Item2;
+
+                switch (strings[0])
                 {
-                    string[] messages = messg.Split('#');
-
-                    String[] message1 = extractChatMessage(System.Text.Encoding.UTF8.GetBytes(messages[0]));
-                    String[] message2 = extractChatMessage(System.Text.Encoding.UTF8.GetBytes(messages[1]));
-
-                    //Оповещение о загруженном файле для клиентов
-                    if (message1[1] != Name)
-                    {
-                        History.SelectionFont = new Font(History.SelectionFont, FontStyle.Bold);
-                        History.AppendText(message1[3]);
-                        History.SelectionFont = new Font(History.SelectionFont, FontStyle.Regular);
+                    case "Table info":
+                        List.removeAllFiles();
+                        string[] files = Encoding.UTF8.GetString(content).Split(';');
+                        foreach (string file in files)
+                            List.AddFileToList(file);
+                        break;
+                    case "Text":
+                        if (strings[1] != Name || content == null) break;
+                        Console.WriteLine(strings[1]);
+                        Console.WriteLine(Name);
+                        History.AppendText(strings[1] + ": " + Encoding.UTF8.GetString(content) + "\n");
                         History.ScrollToCaret();
-                    }
+                        break;
+                    case "File":
+                        if (!Directory.Exists(FILE_DIR))
+                            Directory.CreateDirectory(FILE_DIR);
+                        System.IO.File.WriteAllBytes(Path.Combine(FILE_DIR, strings[2]), content);
 
-                    //Таблица должна грузиться рилтайм при загрузке нового файла. Ахуенно, да?
-                    List.removeAllFiles();
-                    string[] files = message2[3].Split(';');
-                    foreach (string file in files)
-                        List.AddFileToList(file);
-
-                    continue;
-                }
-
-                String[] message = extractChatMessage(System.Text.Encoding.UTF8.GetBytes(messg));
-
-                if (message[0] == "Table info")
-                {
-                    List.removeAllFiles();
-                    string[] files = message[3].Split(';');
-                    foreach (string file in files)
-                        List.AddFileToList(file);
-                }
-
-                if (message[0] == "Text" && message[1] != Name)
-                {
-                    History.AppendText(message[1] + ": " + message[3] + "\n");
-                    History.ScrollToCaret();
+                        History.SelectionFont = FONT_BOLD;
+                        History.AppendText(" You successfully downloaded " + strings[2] + "\n");
+                        History.SelectionFont = FONT_NORMAL;
+                        History.ScrollToCaret();
+                        History.Refresh();
+                        break;
                 }
 
                 //Ответ сервера на запрос о файле
-                if (message[0] == "File")
-                {
-                    if (Directory.Exists(FILE_DIR))
-                        System.IO.File.WriteAllBytes(FILE_DIR + message[2], System.Convert.FromBase64String(message[3]));
-                    else
-                    {
-                        System.IO.Directory.CreateDirectory(FILE_DIR);
-                        System.IO.File.WriteAllBytes(FILE_DIR + message[2], System.Convert.FromBase64String(message[3]));
-                    }
-
-                    History.SelectionFont = new Font(History.SelectionFont, FontStyle.Bold);
-                    History.AppendText(" You successfully downloaded " + message[2] + "\n");
-                    History.SelectionFont = new Font(History.SelectionFont, FontStyle.Regular);
-                    History.ScrollToCaret();
-                    History.Refresh();
-                }
             }
         }
 
-        ////При нажате Enter нажимается кнопка
-        //private void Client_KeyUp(object sender, KeyPressEventArgs e)
-        //{
-        //    if (e.KeyChar == (char)Keys.Enter)
-        //    {
-        //        Send.PerformClick();
-        //    }
-        //}
-
         private void FilesListBox_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop, false) == true)
+            if (e.Data.GetDataPresent(DataFormats.FileDrop, false))
             {
                 e.Effect = DragDropEffects.All;
             }
@@ -264,13 +219,10 @@ namespace MessagerClient
 
         private void Attach_Click(object sender, EventArgs e)
         {
-            OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Multiselect = false;
-            if (dialog.ShowDialog() == DialogResult.OK) // if user clicked OK
-            {
-                File = dialog.FileName; // get name of file
-                Send.PerformClick();
-            }
+            OpenFileDialog dialog = new OpenFileDialog {Multiselect = false};
+            if (dialog.ShowDialog() != DialogResult.OK) return;
+            File = dialog.FileName; // get name of file
+            Send.PerformClick();
         }
 
         private void FilesList_Click(object sender, EventArgs e)
@@ -281,7 +233,7 @@ namespace MessagerClient
             while (List.Enabled)
             {
                 Application.DoEvents();
-            };
+            }
 
             if (List.IsDownload)
             {
@@ -297,7 +249,7 @@ namespace MessagerClient
                 if (Selected != "")
                 {
                     //Жалобное прошение выделенного файла
-                    byte[] data = generateChatMessage("File Request", Name, Selected, "");
+                    byte[] data = generateChatMessage("File Request", Name, Selected, null);
                     SendBytes(data);
                 }
 
@@ -311,21 +263,19 @@ namespace MessagerClient
         //Льет текущее значение File на сервер и обнуляет его
         private void SendFile()
         {
-            if (File != "")
-            {
-                string file = System.Convert.ToBase64String(System.IO.File.ReadAllBytes(File));
-                string filename = File.Split('\\')[File.Split('\\').Length - 1];
-                byte[] data = generateChatMessage("File", Name, filename, file);
-                SendBytes(data);
-                File = "";
+            if (File == "") return;
+            byte[] fileContents = System.IO.File.ReadAllBytes(File);
+            string filename = Path.GetFileName(File);
+            byte[] data = generateChatMessage("File", Name, filename, fileContents);
+            SendBytes(data);
+            File = "";
 
-                //Жырная обводачка
-                History.SelectionFont = new Font(History.SelectionFont, FontStyle.Bold);
-                History.AppendText( "File " + filename + " was successuflly sent to the server \n");
-                History.SelectionFont = new Font(History.SelectionFont, FontStyle.Regular);
-                History.ScrollToCaret();
-                History.Refresh();
-            }
+            //Жырная обводачка
+            History.SelectionFont = FONT_BOLD;
+            History.AppendText( "File " + filename + " was successuflly sent to the server \n");
+            History.SelectionFont = FONT_NORMAL;
+            History.ScrollToCaret();
+            History.Refresh();
         }
 
         //Отправляет байтики отформатированного жсон стринга на сервер
@@ -357,12 +307,11 @@ namespace MessagerClient
         }
 
         //Пиздеж ответа сервера
-        private string GetResponse()
+        private byte[] GetResponse()
         {
-            string response = "";
             try
             {
-                while (client.Connected == false)
+                while (!client.Connected)
                 {
                     client = new TcpClient();
                     client.Connect(SERVER_IP, SERVER_PORT);
@@ -370,17 +319,26 @@ namespace MessagerClient
 
                 NetworkStream stream = client.GetStream();
                 if (!stream.DataAvailable)
-                    return response;
+                    return null;
 
                 byte[] data = new byte[client.ReceiveBufferSize];
 
-                while (!response.EndsWith("END"))
+                int bytes = stream.Read(data, 0, data.Length);
+                if (bytes == 0)
+                    return null;
+                
+                List<byte> output = new List<byte>();
+                for(int i = 0; i < bytes; i++)
+                    output.Add(data[i]);
+                
+                while (stream.DataAvailable && (bytes = stream.Read(data, 0, data.Length)) != 0)
                 {
-                    int bytes = stream.Read(data, 0, data.Length);
-                    response += Encoding.UTF8.GetString(data, 0, bytes);
+                    for(int i = 0; i < bytes; i++)
+                        output.Add(data[i]);
                 }
 
                 stream.Flush();
+                return output.ToArray();
             }
             catch (SocketException ex)
             {
@@ -390,8 +348,7 @@ namespace MessagerClient
             {
                 Console.WriteLine("Exception: {0}", ex.Message);
             }
-
-            return response.Substring(0, response.Length - 3);
+            return null;
         }
     }
 }
