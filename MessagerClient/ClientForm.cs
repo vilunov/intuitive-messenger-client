@@ -147,8 +147,9 @@ namespace MessagerClient
                 Visible = false,
                 Enabled = false
             };
-            t = new Thread(NetworkThread);
-            t.Start();
+            NetworkThread();
+           // t = new Thread(NetworkThread);
+           // t.Start();
         }
 
         private void Send_Click(object sender, EventArgs e)
@@ -169,6 +170,7 @@ namespace MessagerClient
 
         private void ProcessServerResponse(byte[] messg)
         {
+
             if (messg == null)
                 return;
 
@@ -311,6 +313,7 @@ namespace MessagerClient
         {
             while (!this.IsDisposed)
             {
+                Application.DoEvents();
                 byte[] response = GetResponse();
                 if (response != null)
                     ProcessServerResponse(response);
