@@ -183,6 +183,10 @@ namespace MessagerClient
                     string[] files = Encoding.UTF8.GetString(content).Split(';');
                     foreach (string file in files)
                         List.AddFileToList(file);
+                    if (strings[1] == Name || strings[1] == "") break;
+                        History.SelectionFont = FONT_BOLD;
+                        History.AppendText(" User " + strings[1] + " has uploaded new file \n");
+                        History.SelectionFont = FONT_NORMAL;
                     break;
                 case "Text":
                     if (strings[1] == Name || content == null) break;
