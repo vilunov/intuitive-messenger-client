@@ -46,7 +46,8 @@
             this.UsernameBox.Name = "UsernameBox";
             this.UsernameBox.Size = new System.Drawing.Size(302, 30);
             this.UsernameBox.TabIndex = 0;
-            this.UsernameBox.Text = "username";
+            System.Random rng = new System.Random();
+            this.UsernameBox.Text = "username" + rng.Next();
             // 
             // label
             // 
