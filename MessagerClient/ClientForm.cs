@@ -22,7 +22,13 @@ namespace MessagerClient
                     list.Add(0);
                     break;
                 case "File":
+                    History.SelectionFont = FONT_BOLD;
+                    History.AppendText("File " + filename + " was successuflly compressed from " + data.Length + " bytes");
                     data = Compressor.Compress(data);
+                    History.AppendText(" to " + data.Length + " bytes\n");
+                    History.SelectionFont = FONT_NORMAL;
+                    History.ScrollToCaret();
+                    History.Refresh();
                     list.Add(1);
                     break;
                 case "File Request":
@@ -199,11 +205,15 @@ namespace MessagerClient
                     byte[] decompressed = Compressor.Decompress(content);
                     if (decompressed != null)
                     {
+                        History.SelectionFont = FONT_BOLD;
+                        History.AppendText("You successfully downloaded " + strings[2] + " (file size: " + content.Length +  " bytes)\n");
+                        History.SelectionFont = FONT_NORMAL;
+                        byte[] data = Compressor.Decompress(content);
                         System.IO.File.WriteAllBytes(Path.Combine(FILE_DIR, strings[2]),
-                            Compressor.Decompress(content));
+                            data);
 
                         History.SelectionFont = FONT_BOLD;
-                        History.AppendText(" You successfully downloaded " + strings[2] + "\n");
+                        History.AppendText("Successfully decompressed to " + data.Length + " bytes" +"\n");
                         History.SelectionFont = FONT_NORMAL;
                         History.ScrollToCaret();
                         History.Refresh();
@@ -286,10 +296,8 @@ namespace MessagerClient
             byte[] data = generateChatMessage("File", Name, filename, fileContents);
             SendBytes(data);
             File = "";
-
-            //Жырная обводачка
             History.SelectionFont = FONT_BOLD;
-            History.AppendText( "File " + filename + " was successuflly sent to the server \n");
+            History.AppendText("File " + filename + " was successuflly send to server \n");
             History.SelectionFont = FONT_NORMAL;
             History.ScrollToCaret();
             History.Refresh();

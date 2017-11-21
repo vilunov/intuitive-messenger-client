@@ -13,7 +13,10 @@ namespace MessagerClient
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Client());
+            try
+            {
+                Application.Run(new Client());
+            } catch (Exception e) { }
         }
     }
 }
