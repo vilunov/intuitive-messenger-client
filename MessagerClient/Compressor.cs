@@ -42,6 +42,7 @@ namespace MessagerClient
                     }
                     byte[] output = new byte[(int) arr.len];
                     Marshal.Copy(arr.ptr, output, 0, (int) arr.len);
+                    Free(arr.ptr, arr.len, arr.cap);
                     return output;
                 }
             }
@@ -68,6 +69,7 @@ namespace MessagerClient
                     }
                     byte[] output = new byte[(int)arr.len];
                     Marshal.Copy(arr.ptr, output, 0, (int)arr.len);
+                    Free(arr.ptr, arr.len, arr.cap);
                     return output;
                 }
             }
@@ -95,6 +97,7 @@ namespace MessagerClient
                     if (arr.ptr == (IntPtr) 0) return null;
                     byte[] output = new byte[(int)arr.len];
                     Marshal.Copy(arr.ptr, output, 0, (int)arr.len);
+                    Free(arr.ptr, arr.len, arr.cap);
                     return output;
                 }
             }
@@ -122,6 +125,7 @@ namespace MessagerClient
                     if (arr.ptr == (IntPtr)0) return null;
                     byte[] output = new byte[(int)arr.len];
                     Marshal.Copy(arr.ptr, output, 0, (int)arr.len);
+                    Free(arr.ptr, arr.len, arr.cap);
                     return output;
                 }
             }
@@ -169,12 +173,15 @@ namespace MessagerClient
         [DllImport("compressors", EntryPoint = "ham_decode", ExactSpelling = true)]
         private static extern Arr HammingDecode(IntPtr arr, UIntPtr len);
     
+        [DllImport("compressors", EntryPoint = "drop", ExactSpelling = true)]
+        private static extern void Free(IntPtr ptr, UIntPtr len, UIntPtr cap);
+        
         [StructLayout(LayoutKind.Sequential)]
         private struct Arr
         {
             public IntPtr ptr;
             public UIntPtr len;
-            private readonly UIntPtr cap;
+            public UIntPtr cap;
         }
     }
 }
