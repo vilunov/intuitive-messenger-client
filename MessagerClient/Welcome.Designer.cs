@@ -33,7 +33,6 @@
             this.EnterName = new System.Windows.Forms.Button();
             this.ipBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.Encoding = new System.Windows.Forms.ComboBox();
             this.Compression = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -162,7 +161,6 @@
         private System.Windows.Forms.Button EnterName;
         private System.Windows.Forms.TextBox ipBox;
         private System.Windows.Forms.Label label1;
-        private System.ComponentModel.BackgroundWorker backgroundWorker1;
         public System.Windows.Forms.ComboBox Encoding;
         public System.Windows.Forms.ComboBox Compression;
         private System.Windows.Forms.Label label2;

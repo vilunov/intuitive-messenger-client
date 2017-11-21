@@ -14,6 +14,8 @@ namespace MessagerClient
             Encoding.Items.Add(Compressor.Encoding.HAMMING);
             Encoding.Items.Add(Compressor.Encoding.PARITY_CHECK);
             Encoding.Items.Add(Compressor.Encoding.REPETITION);
+            Compression.SelectedItem = Compression.Items[0];
+            Encoding.SelectedItem = Encoding.Items[0];
         }
 
         public String Username = "";
