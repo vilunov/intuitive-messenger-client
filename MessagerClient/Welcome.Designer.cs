@@ -33,6 +33,11 @@
             this.EnterName = new System.Windows.Forms.Button();
             this.ipBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.Encoding = new System.Windows.Forms.ComboBox();
+            this.Compression = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // UsernameBox
@@ -40,10 +45,9 @@
             this.UsernameBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
             this.UsernameBox.Location = new System.Drawing.Point(35, 48);
             this.UsernameBox.Name = "UsernameBox";
-            this.UsernameBox.Size = new System.Drawing.Size(261, 30);
+            this.UsernameBox.Size = new System.Drawing.Size(302, 30);
             this.UsernameBox.TabIndex = 0;
-            System.Random rng = new System.Random();
-            this.UsernameBox.Text = "username" + rng.Next();
+            this.UsernameBox.Text = "username";
             // 
             // label
             // 
@@ -58,7 +62,7 @@
             // 
             // EnterName
             // 
-            this.EnterName.Location = new System.Drawing.Point(35, 182);
+            this.EnterName.Location = new System.Drawing.Point(55, 366);
             this.EnterName.Name = "EnterName";
             this.EnterName.Size = new System.Drawing.Size(261, 38);
             this.EnterName.TabIndex = 2;
@@ -71,7 +75,7 @@
             this.ipBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
             this.ipBox.Location = new System.Drawing.Point(35, 133);
             this.ipBox.Name = "ipBox";
-            this.ipBox.Size = new System.Drawing.Size(261, 30);
+            this.ipBox.Size = new System.Drawing.Size(302, 30);
             this.ipBox.TabIndex = 3;
             this.ipBox.Text = "vilunov.me";
             // 
@@ -79,19 +83,63 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
-            this.label1.Location = new System.Drawing.Point(30, 91);
+            this.label1.Location = new System.Drawing.Point(29, 90);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(227, 26);
             this.label1.TabIndex = 4;
             this.label1.Text = "Enter room ip-address";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // Encoding
+            // 
+            this.Encoding.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.Encoding.FormattingEnabled = true;
+            this.Encoding.Location = new System.Drawing.Point(35, 222);
+            this.Encoding.Name = "Encoding";
+            this.Encoding.Size = new System.Drawing.Size(302, 28);
+            this.Encoding.TabIndex = 5;
+            // 
+            // Compression
+            // 
+            this.Compression.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.Compression.FormattingEnabled = true;
+            this.Compression.Location = new System.Drawing.Point(35, 308);
+            this.Compression.Name = "Compression";
+            this.Compression.Size = new System.Drawing.Size(302, 28);
+            this.Compression.TabIndex = 6;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
+            this.label2.Location = new System.Drawing.Point(29, 178);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(269, 26);
+            this.label2.TabIndex = 7;
+            this.label2.Text = "Select Encoding Algorithm";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
+            this.label3.Location = new System.Drawing.Point(30, 262);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(307, 26);
+            this.label3.TabIndex = 8;
+            this.label3.Text = "Select Compression Algorithm";
+            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // Welcome
             // 
             this.AcceptButton = this.EnterName;
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(339, 247);
+            this.ClientSize = new System.Drawing.Size(374, 416);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.Compression);
+            this.Controls.Add(this.Encoding);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.ipBox);
             this.Controls.Add(this.EnterName);
@@ -114,5 +162,10 @@
         private System.Windows.Forms.Button EnterName;
         private System.Windows.Forms.TextBox ipBox;
         private System.Windows.Forms.Label label1;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        public System.Windows.Forms.ComboBox Encoding;
+        public System.Windows.Forms.ComboBox Compression;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label3;
     }
 }

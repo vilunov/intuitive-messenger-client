@@ -8,6 +8,12 @@ namespace MessagerClient
         public Welcome()
         {
             InitializeComponent();
+            Compression.Items.Add(Compressor.Compression.HUFFMAN);
+            Compression.Items.Add(Compressor.Compression.SHANNON_FANO);
+            Compression.Items.Add(Compressor.Compression.ARITHMETIC);
+            Encoding.Items.Add(Compressor.Encoding.HAMMING);
+            Encoding.Items.Add(Compressor.Encoding.PARITY_CHECK);
+            Encoding.Items.Add(Compressor.Encoding.REPETITION);
         }
 
         public String Username = "";
@@ -17,6 +23,8 @@ namespace MessagerClient
         {
             Username = UsernameBox.Text;
             IP = ipBox.Text;
+            Compressor.CurrCompression = (Compressor.Compression) Compression.SelectedItem;
+            Compressor.CurrEncoding = (Compressor.Encoding ) Encoding.SelectedItem;
         }
     }
 }

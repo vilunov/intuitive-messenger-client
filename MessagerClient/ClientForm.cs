@@ -146,6 +146,7 @@ namespace MessagerClient
             client = new TcpClient();
             client.Connect(SERVER_IP, SERVER_PORT);
             Welcome.Close();
+            
             this.Enabled = true;
             this.Show();
             List = new List

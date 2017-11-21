@@ -5,18 +5,22 @@ namespace MessagerClient
 {
     public static class Compressor
     {
-        private enum Algorithms
+        public enum Compression
         {
             HUFFMAN,
             ARITHMETIC,
-            SHANNON_FANO,
+            SHANNON_FANO
+        }
+        public enum Encoding
+        {
             REPETITION,
             PARITY_CHECK,
             HAMMING
         }
 
-        private static Algorithms currAlgorithm = Algorithms.HUFFMAN;
-        
+        public static Compression CurrCompression { set; get; }
+        public static Encoding CurrEncoding { set; get; }
+
         public static byte[] Compress(byte[] input)
         {
             unsafe
@@ -24,25 +28,16 @@ namespace MessagerClient
                 fixed (byte* p = input)
                 {
                     Arr arr;
-                    switch (currAlgorithm)
+                    switch (CurrCompression)
                     {
-                        case Algorithms.ARITHMETIC:
+                        case Compression.ARITHMETIC:
                             arr = ArithmeticEncode((IntPtr) p, (UIntPtr) input.Length);
                             break;
-                        default:
-                            arr = HuffmanEncode((IntPtr) p, (UIntPtr) input.Length);
-                            break;
-                        case Algorithms.SHANNON_FANO:
+                        case Compression.SHANNON_FANO:
                             arr = SFEncode((IntPtr) p, (UIntPtr) input.Length);
                             break;
-                        case Algorithms.REPETITION:
-                            arr = RepetitionEncode((IntPtr) p, (UIntPtr) input.Length);
-                            break;
-                        case Algorithms.PARITY_CHECK:
-                            arr = ParityCheckEncode((IntPtr) p, (UIntPtr) input.Length);
-                            break;
-                        case Algorithms.HAMMING:
-                            arr = HammingEncode((IntPtr) p, (UIntPtr) input.Length);
+                        default:
+                            arr = HuffmanEncode((IntPtr)p, (UIntPtr)input.Length);
                             break;
                     }
                     byte[] output = new byte[(int) arr.len];
@@ -51,6 +46,33 @@ namespace MessagerClient
                 }
             }
         }
+
+        public static byte[] Encode(byte[] input)
+        {
+            unsafe
+            {
+                fixed (byte* p = input)
+                {
+                    Arr arr;
+                    switch (CurrEncoding)
+                    {
+                        case Encoding.REPETITION:
+                            arr = RepetitionEncode((IntPtr)p, (UIntPtr)input.Length);
+                            break;
+                        case Encoding.PARITY_CHECK:
+                            arr = ParityCheckEncode((IntPtr)p, (UIntPtr)input.Length);
+                            break;
+                        default:
+                            arr = HammingEncode((IntPtr)p, (UIntPtr)input.Length);
+                            break;
+                    }
+                    byte[] output = new byte[(int)arr.len];
+                    Marshal.Copy(arr.ptr, output, 0, (int)arr.len);
+                    return output;
+                }
+            }
+        }
+
         public static byte[] Decompress(byte[] input)
         {
             unsafe
@@ -58,28 +80,46 @@ namespace MessagerClient
                 fixed (byte* p = input)
                 {
                     Arr arr;
-                    switch (currAlgorithm)
+                    switch (CurrCompression)
                     {
-                        case Algorithms.ARITHMETIC:
+                        case Compression.ARITHMETIC:
                             arr = ArithmeticDecode((IntPtr) p, (UIntPtr) input.Length);
                             break;
-                        default: 
-                            arr = HuffmanDecode((IntPtr) p, (UIntPtr) input.Length);
-                            break;
-                        case Algorithms.SHANNON_FANO:
+                        case Compression.SHANNON_FANO:
                             arr = SFDecode((IntPtr) p, (UIntPtr) input.Length);
                             break;
-                        case Algorithms.REPETITION:
-                            arr = RepetitionDecode((IntPtr) p, (UIntPtr) input.Length);
-                            break;
-                        case Algorithms.PARITY_CHECK:
-                            arr = ParityCheckDecode((IntPtr) p, (UIntPtr) input.Length);
-                            break;
-                        case Algorithms.HAMMING:
-                            arr = HammingDecode((IntPtr) p, (UIntPtr) input.Length);
+                            default: 
+                            arr = HuffmanDecode((IntPtr) p, (UIntPtr) input.Length);
                             break;
                     }
                     if (arr.ptr == (IntPtr) 0) return null;
+                    byte[] output = new byte[(int)arr.len];
+                    Marshal.Copy(arr.ptr, output, 0, (int)arr.len);
+                    return output;
+                }
+            }
+        }
+
+        public static byte[] Decode(byte[] input)
+        {
+            unsafe
+            {
+                fixed (byte* p = input)
+                {
+                    Arr arr;
+                    switch (CurrEncoding)
+                    {
+                        case Encoding.REPETITION:
+                            arr = RepetitionDecode((IntPtr)p, (UIntPtr)input.Length);
+                            break;
+                        case Encoding.PARITY_CHECK:
+                            arr = ParityCheckDecode((IntPtr)p, (UIntPtr)input.Length);
+                            break;
+                        default:
+                            arr = HammingDecode((IntPtr)p, (UIntPtr)input.Length);
+                            break;
+                    }
+                    if (arr.ptr == (IntPtr)0) return null;
                     byte[] output = new byte[(int)arr.len];
                     Marshal.Copy(arr.ptr, output, 0, (int)arr.len);
                     return output;
@@ -121,7 +161,7 @@ namespace MessagerClient
 
         [DllImport("compressors", EntryPoint = "pc_decode", ExactSpelling = true)]
         private static extern Arr ParityCheckDecode(IntPtr arr, UIntPtr len);
-        
+
         //Hamming
         [DllImport("compressors", EntryPoint="ham_encode", ExactSpelling = true)]
         private static extern Arr HammingEncode(IntPtr arr, UIntPtr len);
