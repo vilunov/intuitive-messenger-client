@@ -37,6 +37,8 @@
             this.Compression = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.Noise = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // UsernameBox
@@ -46,8 +48,7 @@
             this.UsernameBox.Name = "UsernameBox";
             this.UsernameBox.Size = new System.Drawing.Size(302, 30);
             this.UsernameBox.TabIndex = 0;
-            System.Random rng = new System.Random();
-            this.UsernameBox.Text = "username" + rng.Next();
+            this.UsernameBox.Text = "username";
             // 
             // label
             // 
@@ -62,7 +63,7 @@
             // 
             // EnterName
             // 
-            this.EnterName.Location = new System.Drawing.Point(55, 366);
+            this.EnterName.Location = new System.Drawing.Point(54, 452);
             this.EnterName.Name = "EnterName";
             this.EnterName.Size = new System.Drawing.Size(261, 38);
             this.EnterName.TabIndex = 2;
@@ -130,12 +131,34 @@
             this.label3.Text = "Select Compression Algorithm";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
+            this.label4.Location = new System.Drawing.Point(29, 357);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(205, 26);
+            this.label4.TabIndex = 9;
+            this.label4.Text = "Precentage of noise";
+            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // Noise
+            // 
+            this.Noise.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
+            this.Noise.Location = new System.Drawing.Point(35, 401);
+            this.Noise.Name = "Noise";
+            this.Noise.Size = new System.Drawing.Size(302, 30);
+            this.Noise.TabIndex = 10;
+            this.Noise.Text = "0.5";
+            // 
             // Welcome
             // 
             this.AcceptButton = this.EnterName;
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(374, 416);
+            this.ClientSize = new System.Drawing.Size(376, 502);
+            this.Controls.Add(this.Noise);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.Compression);
@@ -166,5 +189,7 @@
         public System.Windows.Forms.ComboBox Compression;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox Noise;
     }
 }

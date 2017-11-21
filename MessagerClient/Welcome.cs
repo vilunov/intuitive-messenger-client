@@ -20,11 +20,13 @@ namespace MessagerClient
 
         public String Username = "";
         public String IP = "";
+        public double NoiseRate = 0;
 
         private void EnterName_Click(object sender, EventArgs e)
         {
             Username = UsernameBox.Text;
             IP = ipBox.Text;
+            NoiseRate = Convert.ToDouble(Noise.Text);
             Compressor.CurrCompression = (Compressor.Compression) Compression.SelectedItem;
             Compressor.CurrEncoding = (Compressor.Encoding ) Encoding.SelectedItem;
         }

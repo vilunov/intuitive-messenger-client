@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -132,6 +133,7 @@ namespace MessagerClient
         }
 
         private String Name;
+        private double NoiseRate;
         private String File = "";
         private TcpClient client;
         private List List;
@@ -153,12 +155,13 @@ namespace MessagerClient
             Welcome.Activate();
             Welcome.Show();
             Welcome.Refresh();
-            while (Welcome.Username == "" && Welcome.IP == "")
+            while (Welcome.Username == "" && Welcome.IP == "" && Welcome.NoiseRate < 0)
             {
                 Application.DoEvents();
             }
             Name = Welcome.Username;
             SERVER_IP = Welcome.IP;
+            NoiseRate = Welcome.NoiseRate;
             client = new TcpClient();
             client.Connect(SERVER_IP, SERVER_PORT);
             Welcome.Close();
@@ -219,7 +222,7 @@ namespace MessagerClient
                 case "File":
                     if (!Directory.Exists(FILE_DIR))
                         Directory.CreateDirectory(FILE_DIR);
-                    byte[] decoded = Compressor.Decode(content);
+                    byte[] decoded = Compressor.Decode(Noise(NoiseRate, content)); //introdusing some noise
                     if (decoded != null)
                     {
                         byte[] decompressed = Compressor.Decompress(decoded);
@@ -370,7 +373,6 @@ namespace MessagerClient
                 byte[] response = GetResponse();
                 if (response != null)
                     ProcessServerResponse(response);
-                //Thread.Sleep(500);
             }
         }
         
@@ -436,6 +438,43 @@ namespace MessagerClient
                 Console.WriteLine("Exception: {0}", ex.Message);
             }
             return null;
+        }
+
+        private static byte[] Noise(double precentage, byte[] data)
+        {
+            System.Random rng = new System.Random();
+            BitArray bits = new BitArray(data);
+            for (int i = 0; i < bits.Count; i++)
+            {
+                if (rng.NextDouble() * 100 <= precentage)
+                {
+                    bits.Set(i, bits.Get(i).Equals(0) ? true : false);
+                }
+            }
+ 
+            return ToByteArray(bits);
+        }
+
+        public static byte[] ToByteArray(BitArray bits)
+        {
+            int numBytes = bits.Count / 8;
+            if (bits.Count % 8 != 0) numBytes++;
+
+            byte[] bytes = new byte[numBytes];
+            int byteIndex = 0, bitIndex = 0;
+
+            for (int i = 0; i < bits.Count; i++)
+            {
+                if (bits[i])
+                    bytes[byteIndex] |= (byte)(1 << (7 - bitIndex));
+                bitIndex++;
+                if (bitIndex == 8)
+                {
+                    bitIndex = 0;
+                    byteIndex++;
+                }
+            }
+            return bytes;
         }
     }
 }
