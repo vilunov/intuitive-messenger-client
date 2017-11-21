@@ -15,7 +15,7 @@ namespace MessagerClient
             HAMMING
         }
 
-        private static Algorithms currAlgorithm = Algorithms.SHANNON_FANO;
+        private static Algorithms currAlgorithm = Algorithms.HUFFMAN;
         
         public static byte[] Compress(byte[] input)
         {
@@ -29,7 +29,7 @@ namespace MessagerClient
                         case Algorithms.ARITHMETIC:
                             arr = ArithmeticEncode((IntPtr) p, (UIntPtr) input.Length);
                             break;
-                        case Algorithms.HUFFMAN:
+                        default:
                             arr = HuffmanEncode((IntPtr) p, (UIntPtr) input.Length);
                             break;
                         case Algorithms.SHANNON_FANO:
@@ -63,7 +63,7 @@ namespace MessagerClient
                         case Algorithms.ARITHMETIC:
                             arr = ArithmeticDecode((IntPtr) p, (UIntPtr) input.Length);
                             break;
-                        case Algorithms.HUFFMAN:
+                        default: 
                             arr = HuffmanDecode((IntPtr) p, (UIntPtr) input.Length);
                             break;
                         case Algorithms.SHANNON_FANO:
@@ -123,10 +123,10 @@ namespace MessagerClient
         private static extern Arr ParityCheckDecode(IntPtr arr, UIntPtr len);
         
         //Hamming
-        [DllImport("compressors", EntryPoint="hum_encode", ExactSpelling = true)]
+        [DllImport("compressors", EntryPoint="ham_encode", ExactSpelling = true)]
         private static extern Arr HammingEncode(IntPtr arr, UIntPtr len);
 
-        [DllImport("compressors", EntryPoint = "hum_decode", ExactSpelling = true)]
+        [DllImport("compressors", EntryPoint = "ham_decode", ExactSpelling = true)]
         private static extern Arr HammingDecode(IntPtr arr, UIntPtr len);
     
         [StructLayout(LayoutKind.Sequential)]
