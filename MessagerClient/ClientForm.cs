@@ -155,7 +155,7 @@ namespace MessagerClient
             Welcome.Activate();
             Welcome.Show();
             Welcome.Refresh();
-            while (Welcome.Username == "" && Welcome.IP == "" && Welcome.NoiseRate < 0)
+            while (Welcome.Username == "" && Welcome.IP == "" && Welcome.NoiseRate <= 0)
             {
                 Application.DoEvents();
             }
