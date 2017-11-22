@@ -6,7 +6,6 @@ namespace MessagerClient
 {
     public partial class List : Form
     {
-        //HashMap, you can take path offile by its name
         public bool IsDownload;
 
         public List()

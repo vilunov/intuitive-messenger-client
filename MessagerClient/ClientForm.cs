@@ -24,28 +24,6 @@ namespace MessagerClient
                     list.Add(0);
                     break;
                 case "File":
-                    History.SelectionFont = FONT_BOLD;
-                    History.AppendText("File " + filename + " was successuflly compressed from " + data.Length + 
-                                       " bytes ("+ (data.Length/1024) + "KB)\n");
-                    Stopwatch sw = new Stopwatch();
-                    sw.Start();
-                    data = Compressor.Compress(data);
-                    sw.Stop();
-                    long t = sw.ElapsedMilliseconds;
-                    History.AppendText("Algorithm: " + Compressor.CurrCompression + "\n");
-                    History.AppendText("Time: " + t + " ms\n");
-                    History.AppendText("Compressed size: " + data.Length + " bytes ("+ (data.Length/1024) + "KB)\n\n");
-                    sw.Reset();
-                    sw.Start();
-                    data = Compressor.Encode(data);
-                    sw.Stop();
-                    t = sw.ElapsedMilliseconds;
-                    History.AppendText("Algorithm: " + Compressor.CurrEncoding + "\n");
-                    History.AppendText("Time: " + t + " ms\n");
-                    History.AppendText("Encoded size: " + data.Length + " bytes ("+ (data.Length/1024) + "KB)\n\n");
-                    History.SelectionFont = FONT_NORMAL;
-                    History.ScrollToCaret();
-                    History.Refresh();
                     list.Add(1);
                     break;
                 case "File Request":
@@ -174,14 +152,19 @@ namespace MessagerClient
                 Visible = false,
                 Enabled = false
             };
-            NetworkThread();
+            while (!this.IsDisposed)
+            {
+                Application.DoEvents();
+                byte[] response = GetResponse();
+                if (response != null)
+                    ProcessServerResponse(response);
+            }
         }
 
         private void Send_Click(object sender, EventArgs e)
         {
             SendFile();
 
-            //Фикс отправки пробельчиков
             if (!String.IsNullOrWhiteSpace(Message.Text))
             {
                 History.AppendText(Name + ": " + Message.Text + "\n");
@@ -193,9 +176,33 @@ namespace MessagerClient
             Message.Clear();
         }
 
+        private void LogMessage(IEnumerable<string> strs)
+        {
+            History.SelectionFont = FONT_BOLD;
+            foreach(var str in strs)
+                History.AppendText(str);
+            History.SelectionFont = FONT_NORMAL;
+            History.ScrollToCaret();
+            History.Refresh();
+        }
+        
+        private void LogMessage(string str)
+        {
+            History.SelectionFont = FONT_BOLD;
+            History.AppendText(str);
+            History.SelectionFont = FONT_NORMAL;
+            History.ScrollToCaret();
+            History.Refresh();
+        }
+        
+        /*
+         * Handle the message from server
+         * Updates the file list if received the list of files
+         * Writes the message to the text box if received a text message
+         * Decodes, decompresses and saves the file if received a file
+         */
         private void ProcessServerResponse(byte[] messg)
         {
-
             if (messg == null)
                 return;
 
@@ -227,55 +234,35 @@ namespace MessagerClient
                     byte[] withNoise = Noise(NoiseRate, content);
                     byte[] decoded = Compressor.Decode(withNoise); //introdusing some noise
                     sw.Stop();
-                    if (decoded != null)
+                    if (decoded == null)
                     {
-                        History.SelectionFont = FONT_BOLD;
-                        History.AppendText("Number of flips: " + flipped + "\n");
-                        History.AppendText("Noise percentage: " + NoiseRate + "\n");
-                        History.AppendText("Decoding time: " + sw.ElapsedMilliseconds + " ms \n");
-                        History.AppendText("Decoded size: " + decoded.Length + " bytes ("+ (decoded.Length/1024) + "KB)\n\n");
-                        History.SelectionFont = FONT_NORMAL;
-                        sw.Reset();
-                        sw.Start();
-                        byte[] decompressed = Compressor.Decompress(decoded);
-                        sw.Stop();
-                        if (decompressed != null)
-                        {
-                            History.SelectionFont = FONT_BOLD;
-                            History.AppendText("Decompression time: " + sw.ElapsedMilliseconds + " ms \n");
-                            History.AppendText("Decompression size: " + decompressed.Length + " bytes ("+ (decompressed.Length/1024) + "KB)\n\n");
-                            History.SelectionFont = FONT_NORMAL;
-                            History.SelectionFont = FONT_BOLD;
-                            History.AppendText("You successfully downloaded " + strings[2] + " (file size: " +
-                                               content.Length + " bytes)\n");
-                            History.SelectionFont = FONT_NORMAL;
-                            byte[] data = decompressed;
-                            System.IO.File.WriteAllBytes(Path.Combine(FILE_DIR, strings[2]),
-                                data);
-
-                            History.SelectionFont = FONT_BOLD;
-                            History.AppendText("Successfully decompressed to " + data.Length + " bytes" + "\n");
-                            History.SelectionFont = FONT_NORMAL;
-                            History.ScrollToCaret();
-                            History.Refresh();
-                        }
-                        else
-                        {
-                            History.SelectionFont = FONT_BOLD;
-                            History.AppendText(" Failed to decompress " + strings[2] + "\n");
-                            History.SelectionFont = FONT_NORMAL;
-                            History.ScrollToCaret();
-                            History.Refresh();
-                        }
+                        LogMessage($"Failed to decoded {strings[2]}\n");
+                        return;
                     }
-                    else
+                    LogMessage(new[]
                     {
-                        History.SelectionFont = FONT_BOLD;
-                        History.AppendText(" Failed to decoded " + strings[2] + "\n");
-                        History.SelectionFont = FONT_NORMAL;
-                        History.ScrollToCaret();
-                        History.Refresh();
+                        $"Number of flips: {flipped}\n",
+                        $"Noise percentage: {NoiseRate}\n",
+                        $"Decoding time: {sw.ElapsedMilliseconds} ms\n",
+                        $"Decoded size: {decoded.Length} bytes ({(decoded.Length / 1024)}KB)\n\n"
+                    });
+                    sw.Reset();
+                    sw.Start();
+                    byte[] decompressed = Compressor.Decompress(decoded);
+                    sw.Stop();
+                    if (decompressed == null)
+                    {
+                        LogMessage($"Failed to decompress {strings[2]}\n");
+                        return;
                     }
+                    LogMessage(new[]
+                    {
+                        $"Decompression time: {sw.ElapsedMilliseconds} ms \n",
+                        $"Decompression size: {decompressed.Length} bytes ({(decompressed.Length / 1024)}KB)\n\n",
+                        $"You successfully downloaded {strings[2]} (file size: {content.Length} bytes)\n"
+                    });
+                    System.IO.File.WriteAllBytes(Path.Combine(FILE_DIR, strings[2]), decompressed);
+                    LogMessage($"Successfully decompressed to {decompressed.Length} bytes\n");
                     break;
             }
         }
@@ -337,28 +324,60 @@ namespace MessagerClient
             this.Focus();
         }
 
-        //Льет текущее значение File на сервер и обнуляет его
+        /*
+         * Reads and sends the file to the server
+         */
         private void SendFile()
         {
             if (File == "") return;
             byte[] fileContents = System.IO.File.ReadAllBytes(File);
             string filename = Path.GetFileName(File);
-            byte[] data = generateChatMessage("File", Name, filename, fileContents);
+            byte[] data = generateChatMessage("File", Name, filename, CompressAndEncode(filename, fileContents));
             SendBytes(data);
             File = "";
-            History.SelectionFont = FONT_BOLD;
-            History.AppendText("File " + filename + " was successuflly send to server \n");
-            History.SelectionFont = FONT_NORMAL;
-            History.ScrollToCaret();
-            History.Refresh();
+            LogMessage($"File {filename} was successuflly send to server \n");
         }
 
-        //Отправляет байтики отформатированного жсон стринга на сервер
+        /**
+         * Calls the compression and encoding methods
+         */
+        private byte[] CompressAndEncode(string filename, byte[] data)
+        {
+            LogMessage(
+                $"File {filename} was successuflly compressed from {data.Length} bytes ({(data.Length / 1024)}KB)\n");
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            data = Compressor.Compress(data);
+            sw.Stop();
+            long t = sw.ElapsedMilliseconds;
+            LogMessage(new[]
+            {
+                $"Algorithm: {Compressor.CurrCompression}\n",
+                $"Time: {t} ms\n",
+                $"Compressed size: {data.Length} bytes ({(data.Length / 1024)}KB)\n\n"
+            });
+            sw.Reset();
+            sw.Start();
+            data = Compressor.Encode(data);
+            sw.Stop();
+            t = sw.ElapsedMilliseconds;
+            LogMessage(new[]
+            {
+                $"Algorithm: {Compressor.CurrEncoding}\n",
+                $"Time: {t} ms\n",
+                $"Encoded size: {data.Length} bytes ({(data.Length / 1024)}KB)\n\n"
+            });
+            return data;
+        }
+
+        /*
+         * Sends the bytes to the server
+         */
         private void SendBytes(byte[] bytes)
         {
             try
             {
-                //Реконнект при обрыве
+                //Reconnect when the connection has failed
                 while (client.Connected == false)
                 {
                     client = new TcpClient();
@@ -378,18 +397,6 @@ namespace MessagerClient
             catch (Exception ex)
             {
                 Console.WriteLine("Exception: {0}", ex.Message);
-            }
-        }
-
-
-        private void NetworkThread()
-        {
-            while (!this.IsDisposed)
-            {
-                Application.DoEvents();
-                byte[] response = GetResponse();
-                if (response != null)
-                    ProcessServerResponse(response);
             }
         }
         
@@ -457,6 +464,9 @@ namespace MessagerClient
             return null;
         }
 
+        /**
+         * This method randomly flips some bits in the data, using the percentage as a probability
+         */
         private static byte[] Noise(double precentage, byte[] data)
         {
             System.Random rng = new System.Random();
@@ -464,11 +474,9 @@ namespace MessagerClient
             flipped = 0;
             for (int i = 0; i < bits.Count; i++)
             {
-                if (rng.NextDouble() * 100 <= precentage)
-                {
-                    flipped++;
-                    bits.Set(i, bits.Get(i).Equals(0) ? true : false);
-                }
+                if (rng.NextDouble() * 100 > precentage) continue;
+                flipped++;
+                bits.Set(i, !bits.Get(i));
             }
  
             return ToByteArray(bits);
